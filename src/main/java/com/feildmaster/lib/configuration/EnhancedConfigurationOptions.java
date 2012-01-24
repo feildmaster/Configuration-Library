@@ -1,4 +1,4 @@
-package lib.feildmaster.configuration;
+package com.feildmaster.lib.configuration;
 
 import org.bukkit.configuration.file.YamlConfigurationOptions;
 
