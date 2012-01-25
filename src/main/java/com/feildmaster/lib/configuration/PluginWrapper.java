@@ -22,10 +22,10 @@ public abstract class PluginWrapper extends org.bukkit.plugin.java.JavaPlugin {
     }
 
     public void saveConfig() {
-        config.save();
+        getConfig().save();
     }
 
     public void saveDefaultConfig() {
-        config.saveDefaults();
+        getConfig().saveDefaults();
     }
 }
