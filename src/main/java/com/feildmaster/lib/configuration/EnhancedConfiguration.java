@@ -5,12 +5,6 @@ import java.util.*;
 import org.bukkit.configuration.*;
 import org.bukkit.plugin.Plugin;
 
-// DefaultSections - May not go with this
-// Watch File and Reload manual edits?
-//  - Threaded saving on timer? :O
-// Path Comments
-//  - The next thing to code
-
 /**
  * Enhancing configuration to do the following:
  * <li>Stores a file for configuration to use.</li>
@@ -166,11 +160,7 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     public boolean saveDefaults() {
         options().copyDefaults(true);
         options().copyHeader(true);
-        boolean saved = save();
-        options().copyDefaults(false);
-        options().copyHeader(false);
-
-        return saved;
+        return save();
     }
 
     /**
