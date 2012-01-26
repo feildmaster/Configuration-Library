@@ -5,6 +5,10 @@ import java.util.*;
 import org.bukkit.configuration.*;
 import org.bukkit.plugin.Plugin;
 
+// Path Comments
+//  - The next thing to code
+// Case Insensitivity
+
 /**
  * Enhancing configuration to do the following:
  * <li>Stores a file for configuration to use.</li>
@@ -64,6 +68,7 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     public final boolean load() {
         try {
             load(file);
+            clearCache();
             return true;
         } catch (Exception ex) {
             exception = ex;
@@ -145,6 +150,7 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     public boolean loadDefaults(InputStream filestream) {
         try {
             setDefaults(loadConfiguration(filestream));
+            clearCache();
             return true;
         } catch (Exception ex) {
             exception = ex;
@@ -221,6 +227,14 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
             cache.put(path, value);
         }
         super.set(path, value);
+    }
+    /**
+     * Call this method to clear the cache manually.
+     *
+     * Automatically clears on "load"
+     */
+    public void clearCache() {
+        cache.clear();
     }
 
     // Header Overrides... To fix line breaks

@@ -8,7 +8,7 @@ import org.bukkit.configuration.file.YamlConfigurationOptions;
  * @author Feildmaster
  */
 public class EnhancedConfigurationOptions extends YamlConfigurationOptions {
-//    private boolean caseInsensitive = false; // TODO: Finish this for next release
+    private boolean caseInsensitive = false; // TODO: Finish this for next release
 
     public EnhancedConfigurationOptions(EnhancedConfiguration configuration) {
         super(configuration);
@@ -28,20 +28,20 @@ public class EnhancedConfigurationOptions extends YamlConfigurationOptions {
         return this;
     }
 
-//    /**
-//     * Allows case-insensitive lookups
-//     *
-//     * @param value True to turn off sensitivity
-//     * @return This Instance
-//     */
-//    public EnhancedConfigurationOptions caseInsensitive(boolean value) {
-//        caseInsensitive = value;
-//        return this;
-//    }
-//
-//    public boolean caseInsensitive() {
-//        return caseInsensitive;
-//    }
+    /**
+     * Allows case-insensitive lookups
+     *
+     * @param value True to turn off sensitivity
+     * @return This Instance
+     */
+    public EnhancedConfigurationOptions caseInsensitive(boolean value) {
+        caseInsensitive = value;
+        return this;
+    }
+
+    public boolean caseInsensitive() {
+        return caseInsensitive;
+    }
 
     /**
      *
