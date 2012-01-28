@@ -182,6 +182,13 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     }
 
     /**
+     * Clear the defaults from memory
+     */
+    public final void clearDefaults() {
+        setDefaults(new MemoryConfiguration());
+    }
+
+    /**
      * 
      *
      * @return True if file exists, False if not, or if there was an exception.
@@ -228,6 +235,12 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         }
         super.set(path, value);
     }
+
+    public List<Object> getList(String path, List<?> def) {
+        List<Object> list = super.getList(path, def);
+        return list == null ? new ArrayList() : list;
+    }
+
     /**
      * Call this method to clear the cache manually.
      *
@@ -251,5 +264,16 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     }
     public void loadFromString(String contents) throws InvalidConfigurationException {
         super.loadFromString(contents);
+    }
+
+    /**
+     * @return The plugin associated with this configuration.
+     */
+    public Plugin getPlugin() {
+        return plugin;
+    }
+
+    protected File getFile() {
+        return file;
     }
 }
