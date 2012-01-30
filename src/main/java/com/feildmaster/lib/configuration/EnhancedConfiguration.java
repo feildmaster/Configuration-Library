@@ -53,7 +53,6 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         this.file = file;
         this.plugin = plugin;
         options = new EnhancedConfigurationOptions(this);
-
         load();
     }
 
@@ -131,6 +130,7 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
      */
     public boolean loadDefaults(String filename) {
         try {
+            clearCache();
             return loadDefaults(plugin.getResource(filename));
         } catch (Exception ex) {
             exception = ex;
@@ -186,6 +186,10 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
      */
     public final void clearDefaults() {
         setDefaults(new MemoryConfiguration());
+    }
+
+    public boolean needsUpdate() {
+        return !checkDefaults() || !fileExists();
     }
 
     /**
