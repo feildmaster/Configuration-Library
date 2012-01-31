@@ -5,10 +5,6 @@ import java.util.*;
 import org.bukkit.configuration.*;
 import org.bukkit.plugin.Plugin;
 
-// Path Comments
-//  - The next thing to code
-// Case Insensitivity
-
 /**
  * Enhancing configuration to do the following:
  * <li>Stores a file for configuration to use.</li>
@@ -130,7 +126,6 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
      */
     public boolean loadDefaults(String filename) {
         try {
-            clearCache();
             return loadDefaults(plugin.getResource(filename));
         } catch (Exception ex) {
             exception = ex;
@@ -164,7 +159,7 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
      * @return True if saved
      */
     public boolean saveDefaults() {
-        options().copyDefaults(true);
+        options().copyDefaults(true); // These stay so future saves continue to copy over.
         options().copyHeader(true);
         return save();
     }
@@ -193,8 +188,6 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     }
 
     /**
-     * 
-     *
      * @return True if file exists, False if not, or if there was an exception.
      */
     public boolean fileExists() {
@@ -206,7 +199,6 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         }
     }
 
-    // Custom Options
     /**
      * Get the options
      *
@@ -254,7 +246,7 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         cache.clear();
     }
 
-    // Header Overrides... To fix line breaks
+    // TODO: Header Overrides. To fix line breaks
     protected String parseHeader(String input) {
         return super.parseHeader(input);
     }
@@ -262,7 +254,7 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         return super.buildHeader();
     }
 
-    // Custom Yaml Loader... Later
+    // TODO: Custom Yaml Loader
     public String saveToString() {
         return super.saveToString();
     }
