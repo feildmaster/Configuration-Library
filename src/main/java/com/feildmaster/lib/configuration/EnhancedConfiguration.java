@@ -5,6 +5,13 @@ import java.util.*;
 import org.bukkit.configuration.*;
 import org.bukkit.plugin.Plugin;
 
+// Path Comments
+//  - The next thing to code
+// Case Insensitivity
+//  - The "proper" way for this would increase configuration memory. Look into further.
+// Lowercase Keys
+// - This is terrible to implement as well...
+
 /**
  * Enhancing configuration to do the following:
  * <li>Stores a file for configuration to use.</li>
@@ -245,18 +252,16 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     public void clearCache() {
         cache.clear();
     }
-
-    // TODO: Header Overrides. To fix line breaks
-    protected String parseHeader(String input) {
-        return super.parseHeader(input);
-    }
-    protected String buildHeader() {
-        return super.buildHeader();
-    }
-
+//    protected String parseHeader(String input) {
+//        return super.parseHeader(input);
+//    }
+//    protected String buildHeader() {
+//        return super.buildHeader();
+//    }
+//
     // TODO: Custom Yaml Loader
     public String saveToString() {
-        return super.saveToString();
+        return super.saveToString().replaceAll("\n", System.getProperty("line.separator"));
     }
     public void loadFromString(String contents) throws InvalidConfigurationException {
         super.loadFromString(contents);
