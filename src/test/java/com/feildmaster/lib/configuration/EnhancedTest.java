@@ -3,12 +3,15 @@ package com.feildmaster.lib.configuration;
 import org.junit.*;
 import java.io.File;
 import java.util.*;
+import mockit.Mocked;
+import org.bukkit.plugin.Plugin;
 
 public class EnhancedTest {
     private final File file = new File("config.yml");
+    private @Mocked Plugin plugin;
 
     private EnhancedConfiguration getConfig() {
-        return new EnhancedConfiguration(file, null);
+        return new EnhancedConfiguration(file, plugin);
     }
 
     @Test
@@ -39,6 +42,8 @@ public class EnhancedTest {
 
         config.set("test", "test1");
         config.save();
+
+        config.get("test"); // Add to the cache
 
         carbon.set("test", "test2");
         carbon.save();

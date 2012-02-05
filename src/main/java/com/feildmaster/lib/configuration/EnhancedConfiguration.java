@@ -11,6 +11,7 @@ import org.bukkit.plugin.Plugin;
 //  - The "proper" way for this would increase configuration memory. Look into further.
 // Lowercase Keys
 // - This is terrible to implement as well...
+// https://github.com/dumptruckman/PluginTemplate/blob/master/src/main/java/com/dumptruckman/plugintemplate/config/CommentedConfig.java
 
 /**
  * Enhancing configuration to do the following:
@@ -26,6 +27,8 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     private final File file;
     private final Plugin plugin;
     private Exception exception;
+    private boolean modified = false;
+    private long last_modified = -1L;
 
     /**
      * Creates a new EnhancedConfiguration with a file named "config.yml," stored in the plugin DataFolder
@@ -61,16 +64,20 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     /**
      * Loads set file
-     * <p>
-     * Stores exception if possible.
-     * </p>
+     * <p>Does not load if file has not been changed since last load</p>
+     * <p>Stores exception if possible.</p>
      *
      * @return True on successful load
      */
     public final boolean load() {
+        if(last_modified != -1L && !isFileModified()) { // File hasn't been modified since last load
+            return true;
+        }
+
         try {
             load(file);
             clearCache();
+            last_modified = file.lastModified();
             return true;
         } catch (Exception ex) {
             exception = ex;
@@ -89,6 +96,7 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     public final boolean save() {
         try {
             save(file);
+            modified = false;
             return true;
         } catch (Exception ex) {
             exception = ex;
@@ -231,12 +239,26 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         return value;
     }
     public void set(String path, Object value) {
+        if(!modified && !value.equals(get(path))) { // New value does not equal old value...!
+            modified = true;
+        }
+
         if (value == null && cache.containsKey(path)) {
             cache.remove(path);
         } else if (value != null) {
             cache.put(path, value);
         }
         super.set(path, value);
+    }
+
+    /**
+     * Removes the specified path from the configuration.
+     * <p>Currently equivilent to set(path, null).</p>
+     *
+     * @param path The path to remove
+     */
+    public void unset(String path) {
+        set(path, null);
     }
 
     public List<Object> getList(String path, List<?> def) {
@@ -276,5 +298,23 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     protected File getFile() {
         return file;
+    }
+
+    /**
+     * Checks if loaded configuration (not the file) has been modified.
+     *
+     * @return True if local configuration has been modified
+     */
+    public boolean isModified() {
+        return modified;
+    }
+
+    /**
+     * Checks if file has been modified since last load().
+     *
+     * @return True if file has been modified
+     */
+    public boolean isFileModified() {
+        return last_modified != file.lastModified();
     }
 }
