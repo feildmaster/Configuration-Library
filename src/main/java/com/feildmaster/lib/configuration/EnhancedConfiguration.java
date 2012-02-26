@@ -240,14 +240,15 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         return value;
     }
     public void set(String path, Object value) {
-        if(!modified && !value.equals(get(path))) { // New value does not equal old value...!
-            modified = true;
-        }
-
         if (value == null && cache.containsKey(path)) {
             cache.remove(path);
+            modified = true;
         } else if (value != null) {
+            if(!value.equals(get(path))) {
+                modified = true;
+            }
             cache.put(path, value);
+
         }
         super.set(path, value);
     }
