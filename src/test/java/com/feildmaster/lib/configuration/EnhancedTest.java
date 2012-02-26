@@ -69,7 +69,6 @@ public class EnhancedTest {
         config.options().header("Line 1", "Line 2");
         String s = System.getProperty("line.separator");
         String expected = "# Line 1"+s+"# Line 2"+s; // We use the system line separator now
-        System.out.println(config.saveToString());
         Assert.assertEquals(config.saveToString(), expected);
     }
 

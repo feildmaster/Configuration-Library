@@ -12,7 +12,6 @@ import org.bukkit.plugin.Plugin;
 // Lowercase Keys
 // - This is terrible to implement as well...
 // https://github.com/dumptruckman/PluginTemplate/blob/master/src/main/java/com/dumptruckman/plugintemplate/config/CommentedConfig.java
-
 /**
  * Enhancing configuration to do the following:
  * <li>Stores a file for configuration to use.</li>
@@ -64,8 +63,10 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     /**
      * Loads set file
-     * <p>Does not load if file has not been changed since last load</p>
-     * <p>Stores exception if possible.</p>
+     * <p />
+     * Does not load if file has not been changed since last load
+     * <p />
+     * Stores exception if possible.
      *
      * @return True on successful load
      */
@@ -87,9 +88,8 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     /**
      * Saves to the set file
-     * <p>
+     * <p />
      * Stores exception if possible.
-     * </p>
      *
      * @return True on successful save
      */
@@ -115,9 +115,10 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     /**
      * Loads defaults based off the name of stored file.
-     * <p>
+     * <p />
      * Stores exception if possible.
-     * </p>
+     * <p />
+     * Will fail if Plugin is null.
      *
      * @return True on success
      */
@@ -132,9 +133,10 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     /**
      * Sets your defaults after loading the Plugin file.
-     * <p>
+     * <p />
      * Stores exception if possible.
-     * </p>
+     * <p />
+     * Will fail if Plugin is null.
      *
      * @param filename File to load from Plugin jar
      * @return True on success
@@ -150,9 +152,8 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     /**
      * Sets your defaults after loading them.
-     * <p>
+     * <p />
      * Stores exception if possible.
-     * </p>
      *
      * @param filestream Stream to load defaults from
      * @return True on success, false otherwise.
@@ -253,7 +254,8 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     /**
      * Removes the specified path from the configuration.
-     * <p>Currently equivilent to set(path, null).</p>
+     * <p />
+     * Currently equivilent to set(path, null).
      *
      * @param path The path to remove
      */
