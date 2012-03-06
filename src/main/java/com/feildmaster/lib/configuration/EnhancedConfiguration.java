@@ -296,8 +296,8 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     }
 
     @Override
-    public List<Object> getList(String path, List<?> def) {
-        List<Object> list = super.getList(path, def);
+    public List<?> getList(String path, List<?> def) {
+        List<?> list = super.getList(path, def);
         return list == null ? new ArrayList(0) : list;
     }
 
