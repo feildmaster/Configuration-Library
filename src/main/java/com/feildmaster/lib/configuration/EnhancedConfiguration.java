@@ -2,16 +2,27 @@ package com.feildmaster.lib.configuration;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 import org.bukkit.configuration.*;
 import org.bukkit.plugin.Plugin;
 
-// Path Comments
-//  - The next thing to code
-// Case Insensitivity
-//  - The "proper" way for this would increase configuration memory. Look into further.
-// Lowercase Keys
-// - This is terrible to implement as well...
-// https://github.com/dumptruckman/PluginTemplate/blob/master/src/main/java/com/dumptruckman/plugintemplate/config/CommentedConfig.java
+/* __ Things to do __
+ *
+ * Path Comments
+ * - The next thing to code
+ *
+ * Case Insensitivity
+ * - The "proper" way for this would increase configuration memory. Look into further.
+ *
+ * Lowercase Keys
+ * - This is terrible to implement as well...
+ *
+ * Comments. Steal from here
+ * https://github.com/dumptruckman/PluginTemplate/blob/master/src/main/java/com/dumptruckman/plugintemplate/config/CommentedConfig.java
+ *
+ * I want to add 'literalsections' :D
+ */
+
 /**
  * Enhancing configuration to do the following:
  * <li>Stores a file for configuration to use.</li>
@@ -23,14 +34,18 @@ import org.bukkit.plugin.Plugin;
  * @author Feildmaster
  */
 public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlConfiguration {
+    private final Pattern pattern = Pattern.compile("\n"); // Static? Maybe bad? I'm not sure.
     private final File file;
     private final Plugin plugin;
     private Exception exception;
+    private Map<String, Object> cache = new HashMap<String, Object>();
     private boolean modified = false;
     private long last_modified = -1L;
 
     /**
      * Creates a new EnhancedConfiguration with a file named "config.yml," stored in the plugin DataFolder
+     * <p />
+     * Will fail if plugin is null.
      *
      * @param plugin The plugin registered to this Configuration
      */
@@ -40,12 +55,23 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     /**
      * Creates a new EnhancedConfiguration with a file stored in the plugin DataFolder
+     * <p />
+     * Will fail if plugin is null.
      *
      * @param file The name of the file
      * @param plugin The plugin registered to this Configuration
      */
     public EnhancedConfiguration(String file, Plugin plugin) {
         this(new File(plugin.getDataFolder(), file), plugin);
+    }
+
+    /**
+     * Creates a new EnhancedConfiguration with the file provided and a null {@link Plugin}
+     *
+     * @param file The file to store in this configuration
+     */
+    public EnhancedConfiguration(File file) {
+        this(file, null);
     }
 
     /**
@@ -199,8 +225,13 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         setDefaults(new MemoryConfiguration());
     }
 
+    /**
+     * Checks if the file exists, contains all defaults and if this configuration has been modified.
+     *
+     * @return True if the file should be updated (saved)
+     */
     public boolean needsUpdate() {
-        return !checkDefaults() || !fileExists();
+        return !fileExists() || !checkDefaults() || isModified();
     }
 
     /**
@@ -216,16 +247,14 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     }
 
     /**
-     * Get the options
-     *
-     * @return Enhanced Options
+     * @return {@link EnhancedConfigurationOptions}
      */
+    @Override
     public EnhancedConfigurationOptions options() {
         return (EnhancedConfigurationOptions) options;
     }
 
-    // Cache System
-    private Map<String, Object> cache = new HashMap<String, Object>();
+    @Override
     public Object get(String path, Object def) {
         Object value = cache.get(path);
         if (value != null) {
@@ -239,6 +268,8 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
         return value;
     }
+
+    @Override
     public void set(String path, Object value) {
         if (value == null && cache.containsKey(path)) {
             cache.remove(path);
@@ -264,9 +295,10 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         set(path, null);
     }
 
-    public List<Object> getList(String path, List<?> def) {
-        List<Object> list = super.getList(path, def);
-        return list == null ? new ArrayList() : list;
+    @Override
+    public List<?> getList(String path, List<?> def) {
+        List<?> list = super.getList(path, def);
+        return list == null ? new ArrayList(0) : list;
     }
 
     /**
@@ -277,19 +309,15 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     public void clearCache() {
         cache.clear();
     }
-//    protected String parseHeader(String input) {
-//        return super.parseHeader(input);
-//    }
-//    protected String buildHeader() {
-//        return super.buildHeader();
-//    }
-//
-    // TODO: Custom Yaml Loader
-    public String saveToString() {
-        return super.saveToString().replaceAll("\n", System.getProperty("line.separator"));
-    }
-    public void loadFromString(String contents) throws InvalidConfigurationException {
-        super.loadFromString(contents);
+
+    // Replaces \n with System line.separator
+    @Override
+    public String saveToString() { // TODO: Custom YAML loader/saver?
+        String separator = System.getProperty("line.separator");
+        if (separator.equals("\n")) { // Do nothing
+            return super.saveToString();
+        }
+        return pattern.matcher(super.saveToString()).replaceAll(separator);
     }
 
     /**
@@ -318,6 +346,11 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
      * @return True if file has been modified
      */
     public boolean isFileModified() {
-        return last_modified != file.lastModified();
+        try {
+            return last_modified != file.lastModified();
+        } catch (Exception e) {
+            this.exception = e;
+            return false;
+        }
     }
 }
