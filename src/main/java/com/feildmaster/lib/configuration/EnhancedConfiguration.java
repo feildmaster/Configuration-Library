@@ -3,6 +3,7 @@ package com.feildmaster.lib.configuration;
 import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.*;
 import org.bukkit.plugin.Plugin;
 
@@ -281,63 +282,36 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
         EnhancedMemorySection section = (EnhancedMemorySection) super.getConfigurationSection(path);
         if (section == null) {
-            section = createSection(path);
+            return createSection(path);
         }
-
         return section;
     }
 
     @Override
     public EnhancedMemorySection createSection(String path) {
-        if (path == null) {
-            throw new IllegalArgumentException("Path cannot be null");
-        } else if (path.length() == 0) {
-            throw new IllegalArgumentException("Cannot create section at empty path");
-        }
+        Validate.notNull(path, "Path cannot be null");
+        Validate.isTrue(path.length() != 0, "Cannot create section at empty path");
 
-        String[] split = path.split(Pattern.quote(Character.toString(getRoot().options().pathSeparator())));
+        final char seperator = getRoot().options().pathSeparator();
+        // i1 is the leading (higher) index
+        // i2 is the trailing (lower) index
+        int i1 = -1, i2;
         EnhancedMemorySection section = null;
-
-        for (int i = 0; i < split.length - 1; i++) {
-            EnhancedMemorySection last = section;
-            if (section != null) {
-                section = getConfigurationSection(split[i]);
-            }
-
-            if (section == null) {
-                if (last == null) {
-                    section = createLiteralSection(split[i]);
-                } else {
-                    section = last.createLiteralSection(split[i]);
-                }
+        while ((i1 = path.indexOf(seperator, i2 = i1 + 1)) != -1) {
+            String node = path.substring(i2, i1);
+            EnhancedMemorySection subSection = section == null ? getConfigurationSection(node) : section.getConfigurationSection(node);
+            if (subSection == null) {
+                section = section.createLiteralSection(node);
+            } else {
+                section = subSection;
             }
         }
-//        while (path.length() > 0 && split.length() > 0) {
-//            if (!split.equals(path)) {
-//                path = path.substring(path.length()+1);
-//            } else {
-//                path = "";
-//            }
-//
-//            EnhancedMemorySection last = section;
-//            if (section != null) {
-//                section = section.getConfigurationSection(split);
-//            }
-//
-//            if (section == null) {
-//                if (last == null) {
-//                    section = createLiteralSection(split);
-//                } else {
-//                    section = last.createLiteralSection(split);
-//                }
-//            }
-//        }
-        String key = split[split.length - 1];
+
+        String key = path.substring(i2);
         if (section == null) {
             return createLiteralSection(key);
-        } else {
-            return section.createLiteralSection(key);
         }
+        return section.createLiteralSection(key);
     }
 
     public EnhancedMemorySection createLiteralSection(String key) {
@@ -360,20 +334,6 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         }
     }
 
-    // This will be used later
-//    private String getKey(String path) {
-//        int i = path.indexOf(".");
-//        int j = path.indexOf("'");
-//
-//        if (i != -1 && i < j) {
-//            return path.substring(0, i-1);
-//        } else if (j != -1) {
-//            return path.substring(0, j-1);
-//        } else {
-//            return path;
-//        }
-//    }
-
     /**
      * @return {@link EnhancedConfigurationOptions}
      */
@@ -384,12 +344,37 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     @Override
     public Object get(String path, Object def) {
+        Validate.notNull(path, "Path cannot be null");
+
+        if (path.length() == 0) {
+            return this;
+        }
+
         Object value = cache.get(path);
         if (value != null) {
             return value;
         }
 
-        value = super.get(path, def);
+        final char seperator = getRoot().options().pathSeparator();
+        // i1 is the leading (higher) index
+        // i2 is the trailing (lower) index
+        int i1 = -1, i2;
+        ConfigurationSection section = this;
+        while ((i1 = path.indexOf(seperator, i2 = i1 + 1)) != -1) {
+            section = section.getConfigurationSection(path.substring(i2, i1));
+            if (section == null) {
+                return def;
+            }
+        }
+
+        String key = path.substring(i2);
+        if (section == this) {
+            Object result = map.get(key);
+            value = (result == null) ? def : result;
+        } else {
+            value = section.get(path, def);
+        }
+
         if (value != null) {
             cache.put(path, value);
         }
@@ -399,6 +384,9 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     @Override
     public void set(String path, Object value) {
+        Validate.notNull(path, "Path cannot be null");
+        Validate.isTrue(path.length() != 0, "Cannot set to an empty path");
+
         if (value == null && cache.containsKey(path)) {
             cache.remove(path);
             modified = true;
@@ -408,7 +396,32 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
             }
             cache.put(path, value);
         }
-        super.set(path, value);
+
+        final char seperator = getRoot().options().pathSeparator();
+        // i1 is the leading (higher) index
+        // i2 is the trailing (lower) index
+        int i1 = -1, i2;
+        ConfigurationSection section = this;
+        while ((i1 = path.indexOf(seperator, i2 = i1 + 1)) != -1) {
+            String node = path.substring(i2, i1);
+            ConfigurationSection subSection = section.getConfigurationSection(node);
+            if (subSection == null) {
+                section = section.createSection(node);
+            } else {
+                section = subSection;
+            }
+        }
+
+        String key = path.substring(i2);
+        if (section == this) {
+            if (value == null) {
+                map.remove(key);
+            } else {
+                map.put(key, value);
+            }
+        } else {
+            section.set(key, value);
+        }
     }
 
     /**
