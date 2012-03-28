@@ -116,6 +116,8 @@ public class EnhancedMemorySection extends MemorySection implements EnhancedConf
 
     @Override
     public EnhancedConfigurationSection createLiteralSection(String key) {
-        return (EnhancedConfigurationSection) map.put(key, new EnhancedMemorySection(superParent, this, key));
+        EnhancedConfigurationSection section = new EnhancedMemorySection(superParent, this, key);
+        map.put(key, section);
+        return section;
     }
 }

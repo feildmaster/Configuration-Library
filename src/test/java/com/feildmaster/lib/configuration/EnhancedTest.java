@@ -83,17 +83,6 @@ public class EnhancedTest {
     }
 
     @Test
-    public void testModifiedBySection() {
-        EnhancedConfiguration config = getConfig();
-        String path = "test.section";
-
-        EnhancedConfigurationSection section = config.getConfigurationSection(path);
-        section.set("test", true);
-
-        Assert.assertTrue(config.isModified());
-    }
-
-    @Test
     public void testHeader() {
         reset();
         EnhancedConfiguration config = getConfig();

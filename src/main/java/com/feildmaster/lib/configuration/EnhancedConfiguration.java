@@ -308,7 +308,9 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
 
     @Override
     public EnhancedConfigurationSection createLiteralSection(String key) {
-        return (EnhancedConfigurationSection) map.put(key, new EnhancedMemorySection(this, this, key));
+        EnhancedConfigurationSection section = new EnhancedMemorySection(this, this, key);
+        map.put(key, section);
+        return section;
     }
 
     /**
