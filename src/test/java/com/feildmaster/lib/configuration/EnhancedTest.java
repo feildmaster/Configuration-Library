@@ -75,7 +75,7 @@ public class EnhancedTest {
         config.set("sub.test.section", true);
 
         // Test getting section
-        EnhancedMemorySection section = config.getConfigurationSection("sub");
+        EnhancedConfigurationSection section = config.getConfigurationSection("sub");
         Assert.assertTrue(!section.getBoolean("section"));
         // Test getting sub-section
         section = section.getConfigurationSection("test");
@@ -87,7 +87,7 @@ public class EnhancedTest {
         EnhancedConfiguration config = getConfig();
         String path = "test.section";
 
-        EnhancedMemorySection section = config.getConfigurationSection(path);
+        EnhancedConfigurationSection section = config.getConfigurationSection(path);
         section.set("test", true);
 
         Assert.assertTrue(config.isModified());

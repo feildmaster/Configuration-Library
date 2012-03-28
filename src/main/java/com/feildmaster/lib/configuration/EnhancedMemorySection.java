@@ -3,14 +3,15 @@ package com.feildmaster.lib.configuration;
 import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.*;
 
-// TODO: Make configuration *always* use Enhanced Sections
-// TODO: Move section overrides to this class
+// mapChildrenValues/Keys
+// getValues
+// static CreatePath
 /**
  * A placeholder for enhanced sections
  *
  * @author Feildmaster
  */
-public class EnhancedMemorySection extends MemorySection {
+public class EnhancedMemorySection extends MemorySection implements EnhancedConfigurationSection {
     protected final EnhancedConfiguration superParent;
 
     public EnhancedMemorySection(EnhancedConfiguration superParent, MemorySection parent, String path) {
@@ -18,9 +19,10 @@ public class EnhancedMemorySection extends MemorySection {
         this.superParent = superParent;
     }
 
+    @Override
     public void set(String path, Object value) {
         Validate.notNull(path, "Path cannot be null");
-        Validate.isTrue(path.length() != 0, "Cannot set to an empty path");
+        Validate.notEmpty(path, "Cannot set to an empty path");
 
         if (value != null && !value.equals(get(path)) || value == null && get(path) != null) {
             superParent.modified = true;
@@ -30,12 +32,12 @@ public class EnhancedMemorySection extends MemorySection {
         // i1 is the leading (higher) index
         // i2 is the trailing (lower) index
         int i1 = -1, i2;
-        ConfigurationSection section = this;
+        EnhancedConfigurationSection section = this;
         while ((i1 = path.indexOf(seperator, i2 = i1 + 1)) != -1) {
             String node = path.substring(i2, i1);
-            ConfigurationSection subSection = section.getConfigurationSection(node);
+            EnhancedConfigurationSection subSection = section.getConfigurationSection(node);
             if (subSection == null) {
-                section = section.createSection(node);
+                section = section.createLiteralSection(node);
             } else {
                 section = subSection;
             }
@@ -53,9 +55,9 @@ public class EnhancedMemorySection extends MemorySection {
         }
     }
 
+    @Override
     public Object get(String path, Object def) {
         Validate.notNull(path, "Path cannot be null");
-
         if (path.length() == 0) {
             return this;
         }
@@ -80,24 +82,25 @@ public class EnhancedMemorySection extends MemorySection {
         return section.get(key, def);
     }
 
-    public EnhancedMemorySection getConfigurationSection(String path) {
-        return (EnhancedMemorySection) super.getConfigurationSection(path);
+    @Override
+    public EnhancedConfigurationSection getConfigurationSection(String path) {
+        return (EnhancedConfigurationSection) super.getConfigurationSection(path);
     }
 
     @Override
-    public EnhancedMemorySection createSection(String path) {
+    public EnhancedConfigurationSection createSection(String path) {
         Validate.notNull(path, "Path cannot be null");
-        Validate.isTrue(path.length() != 0, "Cannot create section at empty path");
+        Validate.notEmpty(path, "Cannot create section at empty path");
 
         final char seperator = getRoot().options().pathSeparator();
         // i1 is the leading (higher) index
         // i2 is the trailing (lower) index
         int i1 = -1, i2;
-        EnhancedMemorySection section = this;
+        EnhancedConfigurationSection section = this;
         while ((i1 = path.indexOf(seperator, i2 = i1 + 1)) != -1) {
             String node = path.substring(i2, i1);
-            EnhancedMemorySection subSection = section.getConfigurationSection(node);
-            if (subSection == null) {
+            EnhancedConfigurationSection subSection = section.getConfigurationSection(node);
+            if (subSection == this) {
                 section = section.createLiteralSection(node);
             } else {
                 section = subSection;
@@ -106,20 +109,13 @@ public class EnhancedMemorySection extends MemorySection {
 
         String key = path.substring(i2);
         if (section == this) {
-            return this.createLiteralSection(key);
+            return createLiteralSection(key);
         }
         return section.createLiteralSection(key);
     }
 
-    public EnhancedMemorySection createLiteralSection(String key) {
-        EnhancedMemorySection newSection = new EnhancedMemorySection(superParent, this, key);
-        map.put(key, newSection);
-        return newSection;
+    @Override
+    public EnhancedConfigurationSection createLiteralSection(String key) {
+        return (EnhancedConfigurationSection) map.put(key, new EnhancedMemorySection(superParent, this, key));
     }
-
-    // Set
-    // Get
-    // mapChildrenValues/Keys
-    // getValues
-    // static CreatePath
 }
