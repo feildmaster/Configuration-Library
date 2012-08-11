@@ -3,11 +3,8 @@ package com.feildmaster.lib.configuration;
 import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.*;
 
-// mapChildrenValues/Keys
-// getValues
-// static CreatePath
 /**
- * A placeholder for enhanced sections
+ * Enhancements for MemorySection's, plays hand in hand with {@link EnhancedConfiguration}'s
  *
  * @author Feildmaster
  */
@@ -24,7 +21,10 @@ public class EnhancedMemorySection extends MemorySection implements EnhancedConf
         Validate.notNull(path, "Path cannot be null");
         Validate.notEmpty(path, "Cannot set to an empty path");
 
-        if (value != null && !value.equals(get(path)) || value == null && get(path) != null) {
+        String fullPath = getCurrentPath() + path;
+
+        if (value != null && !value.equals(get(path)) || value == null && superParent.cache.containsKey(fullPath)) {
+            superParent.cache.remove(fullPath);
             superParent.modified = true;
         }
 
@@ -62,6 +62,13 @@ public class EnhancedMemorySection extends MemorySection implements EnhancedConf
             return this;
         }
 
+        String fullPath = getCurrentPath() + path;
+
+        Object value = superParent.cache.get(fullPath);
+        if (value != null) {
+            return value;
+        }
+
         final char seperator = getRoot().options().pathSeparator();
         // i1 is the leading (higher) index
         // i2 is the trailing (lower) index
@@ -77,9 +84,16 @@ public class EnhancedMemorySection extends MemorySection implements EnhancedConf
         String key = path.substring(i2);
         if (section == this) {
             Object result = map.get(key);
-            return (result == null) ? def : result;
+            value = (result == null) ? def : result;
+        } else {
+            value = section.get(key, def);
         }
-        return section.get(key, def);
+
+        if (value != null && !(value instanceof ConfigurationSection)) {
+            superParent.cache.put(fullPath, value);
+        }
+
+        return value;
     }
 
     @Override
@@ -108,9 +122,6 @@ public class EnhancedMemorySection extends MemorySection implements EnhancedConf
         }
 
         String key = path.substring(i2);
-        if (section == this) {
-            return createLiteralSection(key);
-        }
         return section.createLiteralSection(key);
     }
 

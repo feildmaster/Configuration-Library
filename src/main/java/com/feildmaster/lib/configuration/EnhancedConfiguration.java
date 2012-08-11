@@ -250,6 +250,7 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
      */
     public void clearDefaults() {
         setDefaults(new MemoryConfiguration());
+        clearCache();
     }
 
     /**
@@ -262,6 +263,8 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     }
 
     /**
+     * Check if file associated with this configuration exists
+     *
      * @return True if file exists, False if not, or if there was an exception.
      */
     public boolean fileExists() {
@@ -273,9 +276,9 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         }
     }
 
-    // This section lets me hack more into configuration
     @Override
     public EnhancedConfigurationSection getConfigurationSection(String path) {
+        // Get a casted section
         return (EnhancedConfigurationSection) super.getConfigurationSection(path);
     }
 
@@ -300,9 +303,6 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         }
 
         String key = path.substring(i2);
-        if (section == this) {
-            return createLiteralSection(key);
-        }
         return section.createLiteralSection(key);
     }
 
@@ -324,7 +324,6 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     @Override
     public Object get(String path, Object def) {
         Validate.notNull(path, "Path cannot be null");
-
         if (path.length() == 0) {
             return this;
         }
@@ -366,14 +365,9 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
         Validate.notNull(path, "Path cannot be null");
         Validate.notEmpty(path, "Cannot set to an empty path");
 
-        if (value == null && cache.containsKey(path)) {
+        if (value == null && cache.containsKey(path) || value != null && !value.equals(get(path))) {
             cache.remove(path);
             modified = true;
-        } else if (value != null) {
-            if(!value.equals(get(path))) {
-                modified = true;
-            }
-            cache.put(path, value);
         }
 
         final char seperator = getRoot().options().pathSeparator();

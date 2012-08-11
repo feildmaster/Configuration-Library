@@ -24,12 +24,10 @@ public class EnhancedTest {
     @Test
     public void testLists() {
         EnhancedConfiguration config = getConfig(); // Get config
-        config.load();
         List<Object> list = Arrays.asList((Object) "One", "Two", "Three", 4, "5", 6.0, true, "false"); // List to put into config
         config.set("list", list); // Set "list" path
         config.save(); // Save to file
         config = getConfig(); // Get new config
-        config.load(); // Load
         Assert.assertEquals(list, config.getList("list")); // Is the list the same?
         Assert.assertEquals(list, config.get("list")); // This time, lets not convert to list.
         reset();
@@ -40,10 +38,6 @@ public class EnhancedTest {
         EnhancedConfiguration config = getConfig();
         EnhancedConfiguration carbon = getConfig();
         EnhancedConfiguration copy = getConfig();
-
-        config.load();
-        carbon.load();
-        copy.load();
 
         config.set("test", "test1");
         config.save();
