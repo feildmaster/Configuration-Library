@@ -224,6 +224,14 @@ public class  EnhancedConfiguration extends org.bukkit.configuration.file.YamlCo
     public final void clearDefaults() {
         setDefaults(new MemoryConfiguration());
     }
+    
+    /**
+     * Clears the file of all values in memory 
+     */
+    public final void clearFile(){
+    	cache.clear();
+    	super.map.clear();
+    }
 
     /**
      * Checks if the file exists, contains all defaults and if this configuration has been modified.
