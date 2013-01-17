@@ -302,7 +302,7 @@ public class EnhancedConfiguration extends org.bukkit.configuration.file.YamlCon
 	@Override
 	public List<?> getList(String path, List<?> def){
 		List<?> list = super.getList(path, def);
-		return list == null ? new ArrayList(0) : list;
+		return list == null ? new ArrayList<Object>(0) : list;
 	}
 
 	/**
